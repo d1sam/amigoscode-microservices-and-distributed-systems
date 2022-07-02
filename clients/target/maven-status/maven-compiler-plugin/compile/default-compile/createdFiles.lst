@@ -1,0 +1,4 @@
+com/dshulha/clients/fraud/FraudClient.class
+com/dshulha/clients/notification/NotificationRequest.class
+com/dshulha/clients/fraud/FraudCheckResponse.class
+com/dshulha/clients/notification/NotificationClient.class

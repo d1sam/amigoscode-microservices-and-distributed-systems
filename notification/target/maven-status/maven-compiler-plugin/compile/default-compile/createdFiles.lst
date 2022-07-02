@@ -1,0 +1,8 @@
+com/dshulha/notification/NotificationService.class
+com/dshulha/notification/Notification$NotificationBuilder.class
+com/dshulha/notification/NotificationRepository.class
+com/dshulha/notification/NotificationController.class
+com/dshulha/notification/rabbitmq/NotificationConsumer.class
+com/dshulha/notification/NotificationConfig.class
+com/dshulha/notification/NotificationApplication.class
+com/dshulha/notification/Notification.class

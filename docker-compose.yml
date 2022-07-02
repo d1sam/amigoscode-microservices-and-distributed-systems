@@ -1,0 +1,166 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: dshulha
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5442:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  postgres-fraud:
+    container_name: postgres-fraud
+    image: postgres
+    environment:
+      POSTGRES_USER: dshulha
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres-fraud
+    volumes:
+      - postgres-fraud:/data/postgres-fraud
+    ports:
+      - "5443:5432"
+    networks:
+      - postgres-fraud
+    restart: unless-stopped
+
+  postgres-notification:
+    container_name: postgres-notification
+    image: postgres
+    environment:
+      POSTGRES_USER: dshulha
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres-notification
+    volumes:
+      - postgres-notification:/data/postgres-notification
+    ports:
+      - "5444:5432"
+    networks:
+      - postgres-notification
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+      - postgres-fraud
+      - postgres-notification
+    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    networks:
+      - spring
+    ports:
+      - "9411:9411"
+
+  rabbitmq:
+    image: rabbitmq:3.10.5-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  eureka-server:
+    image: d1sam/eureka-server:1.0-SNAPSHOT
+    container_name: eureka_server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    ports:
+      - "8761:8761"
+    depends_on:
+      - zipkin
+
+  apigw:
+    image: d1sam/apigw:1.0-SNAPSHOT
+    container_name: apigw
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+    ports:
+      - "8083:8083"
+    depends_on:
+      - zipkin
+      - eureka-server
+
+  customer:
+    image: d1sam/customer:1.0-SNAPSHOT
+    container_name: customer
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+
+  fraud:
+    image: d1sam/fraud:1.0-SNAPSHOT
+    container_name: fraud
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres-fraud
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres-fraud
+      - rabbitmq
+
+  notification:
+    image: d1sam/notification:1.0-SNAPSHOT
+    container_name: notification
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres-notification
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres-notification
+      - rabbitmq
+
+networks:
+  postgres-fraud:
+    driver: bridge
+  postgres-notification:
+    driver: bridge
+  postgres:
+    driver: bridge
+  spring:
+    driver: bridge
+
+volumes:
+  pgadmin:
+  postgres:
+  postgres-notification:
+  postgres-fraud:
