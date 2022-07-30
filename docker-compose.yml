@@ -71,6 +71,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.10.5-management-alpine
+    networks:
+      - spring
     container_name: rabbitmq
     ports:
       - "5672:5672"
@@ -108,6 +110,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_RABBITMQ_HOST=rabbitmq
     networks:
       - spring
       - postgres
@@ -140,6 +143,7 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_RABBITMQ_HOST=rabbitmq
     networks:
       - spring
       - postgres-notification
@@ -151,9 +155,7 @@ services:
 
 networks:
   postgres-fraud:
-    driver: bridge
   postgres-notification:
-    driver: bridge
   postgres:
     driver: bridge
   spring:

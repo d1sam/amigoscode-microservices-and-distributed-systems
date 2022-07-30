@@ -20,6 +20,8 @@ spring:
   zipkin:
     base-url: http://zipkin:9411
   rabbitmq:
+#    host: rabbitmq
+#    port: 5672
     addresses: rabbitmq:5672
 
 eureka:

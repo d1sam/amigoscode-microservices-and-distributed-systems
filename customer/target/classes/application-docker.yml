@@ -8,7 +8,7 @@ spring:
     driverClassName: org.postgresql.Driver
     username: 'dshulha'
     password: 'password'
-    url: jdbc:postgresql://postgres:5442/customer
+    url: jdbc:postgresql://postgres:5432/customer
   jpa:
     properties:
       hibernate:
@@ -20,6 +20,8 @@ spring:
   zipkin:
     base-url: http://zipkin:9411
   rabbitmq:
+#    host: rabbitmq
+#    port: 5672
     addresses: rabbitmq:5672
 eureka:
   client:
